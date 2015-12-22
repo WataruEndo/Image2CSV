@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from PIL import Image
+import random
 
 
 # load pixel
@@ -14,6 +15,7 @@ class Image2csv:
         self.dim = dim
         self.colortype = colortype
         self.src_image_xy = src_image_xy
+        self.src_image_size = self.src_image_xy[0] * self.src_image_xy[1]
 
     def openimages(self):
         file_name = "sea_400x400.jpeg" ##atode edit
@@ -21,24 +23,37 @@ class Image2csv:
         src_image = fp.getdata()
         return src_image
 
-    def traindata_create(self, src_image, randum, seed=None):
+    def traindata_create(self, src_image, random_flg, seed=None):
         """"traindata_create" create training-data for pylearn2 as CSV format.
         """
-        if seed == None:
-            seed = 1
 
-        if randum == 1:
-            pass
+        if random_flg == 1:
+            if seed == None:
+                random.seed(None)
+            else:
+                print seed
+                random.seed(seed)
 
-        self.clop(src_image, (0,0), self.clop_size)
+            readlist = random.sample(xrange(self.src_image_size),\
+                                            self.src_image_size)
+        else:
+            readlist = xrange(self.src_image_size)
+
+        for base_point in readlist:
+            self.clop(src_image, base_point, self.clop_size)
 
 
     def clop(self, src_image, base_point, clop_size):
+        ##print "base_point ", base_point
         cloped = []
-        for x in range(base_point[0], clop_size[0]):
-            for y in range(base_point[1], clop_size[1]):
-                cloped.append(src_image[x])
-        print src_image[1]
+        ##print "---start---"
+        for y in range(0, clop_size[1]):
+            ##print "yyyyy"
+            for x in range(0, clop_size[0]):
+                read_point = base_point + x + y * self.src_image_xy[0]
+                print read_point
+                cloped.append(src_image[read_point])
+        #print cloped
 
     def pixel_2_csvline(self):
         print "CSV!"
