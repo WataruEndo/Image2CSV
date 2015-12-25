@@ -15,6 +15,7 @@ class Image2CsvTraindata:
         self.scan_xy = (src_image_xy[0] - (clip_size[0] - 1),\
                         src_image_xy[1] - (clip_size[1] - 1))
         self.scan_size = self.scan_xy[0] * self.scan_xy[1]
+        self.count=0
 
     def openimages(self, path):
         """"openimages" open images and get category(label).
@@ -52,7 +53,8 @@ class Image2CsvTraindata:
 
         #Create csvfile.
         f = open(output_filename, "w")
-        index =0
+        f.write("category,pixels\n")
+
         for base_point in readlist:
             for index in range(len(src_image[0])):
                 tmp = self.clip(src_image[0][index], src_image[1][index],\
@@ -72,19 +74,26 @@ class Image2CsvTraindata:
     def image_2_csvline(self, writer, category, image):
         """"image_2_scvline" transfer clipped image to csvline.
         """
+        #self.count=0
         for index, output in enumerate(image):
             if index == 0:
                 outline = str(category) + "," + str(output[0])
-                for i in range(1, self.dim-1):
+                #print self.count
+                for i in range(1, self.dim):
                     outline = str(outline) + " " + str(output[i])
+                    self.count = self.count + 1
+                    #print self.count
             else:
-                for i in range(self.dim):
+                for ii in range(self.dim):
                     outline = str(outline) + " " + str(output[i])
+                    self.count = self.count + 1
+                    #print self.count
+
         outline = str(outline) + "\n"
         writer.write(outline)
 
 
 if __name__ == "__main__":
-    I2CT=Image2CsvTraindata("./", (8,8), 3, (400,400))
-    src = I2CT.openimages("[^0-9]*.jpeg")
+    I2CT=Image2CsvTraindata("./", (8,8), 3, (1300,40))
+    src = I2CT.openimages("[^0-9]*.png")
     I2CT.traindata_create(src, "train.csv", 1, 1)
